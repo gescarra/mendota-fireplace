@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.pytest_cache/
+# Captures contain your remote's serial, which is all anyone needs to
+# control your fireplace. Never commit them.
+captures/
