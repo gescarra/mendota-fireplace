@@ -1,0 +1,17 @@
+{
+  "domain": "proflame2_broadlink",
+  "name": "Proflame 2 Fireplace (Broadlink)",
+  "after_dependencies": [
+    "broadlink"
+  ],
+  "codeowners": [
+    "@gescarra"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/gescarra/ha-proflame2-broadlink",
+  "integration_type": "device",
+  "iot_class": "assumed_state",
+  "issue_tracker": "https://github.com/gescarra/ha-proflame2-broadlink/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

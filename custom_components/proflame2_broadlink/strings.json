@@ -1,0 +1,85 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Proflame 2 fireplace",
+        "description": "Pick the Broadlink RM Pro that will transmit, then paste one code learned from your handheld remote (Broadlink base64, or the text of a Flipper Zero RAW .sub file). The remote's serial and checksum are read from it.",
+        "data": {
+          "name": "Name",
+          "remote_entity": "Broadlink remote",
+          "capture": "Captured code",
+          "temperature_sensor": "Room temperature sensor (optional)"
+        },
+        "data_description": {
+          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and a thermostat entity is added."
+        }
+      }
+    },
+    "error": {
+      "invalid_capture": "No valid Proflame 2 packet found in that capture."
+    },
+    "abort": {
+      "already_configured": "This remote serial is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "resend_minutes": "Resend the state every",
+          "temperature_sensor": "Room temperature sensor",
+          "smart_span": "Smart: gap for full flame",
+          "smart_min_flame": "Smart: lowest flame level",
+          "hysteresis": "Margin before changing"
+        },
+        "data_description": {
+          "resend_minutes": "The handheld remote repeats its state every few minutes. 0 turns this off.",
+          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and a thermostat entity is added.",
+          "smart_span": "How far below target the room must be for flame 6. The flame steps down evenly as the room warms; 6 \u00b0F means one level per degree.",
+          "smart_min_flame": "Smart never burns lower than this while heating.",
+          "hysteresis": "How far past a threshold the room must go before the flame changes or shuts off. Stops rapid cycling."
+        }
+      }
+    }
+  },
+  "entity": {
+    "switch": {
+      "power": {
+        "name": "Power"
+      },
+      "pilot": {
+        "name": "Continuous pilot"
+      },
+      "front": {
+        "name": "Secondary burner"
+      }
+    },
+    "number": {
+      "flame": {
+        "name": "Flame"
+      }
+    },
+    "fan": {
+      "fan": {
+        "name": "Fan"
+      }
+    },
+    "light": {
+      "light": {
+        "name": "Accent light"
+      }
+    },
+    "climate": {
+      "thermostat": {
+        "name": "Thermostat",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "smart": "Smart"
+            }
+          }
+        }
+      }
+    }
+  }
+}
