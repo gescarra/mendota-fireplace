@@ -214,7 +214,10 @@ class ProflameEntity(Entity):
 
     _attr_has_entity_name = True
     _attr_should_poll = False
-    _attr_assumed_state = True
+    # The state is still assumed, but flagging it makes the frontend swap
+    # toggles for a pair of lightning-bolt buttons. The controller resends
+    # its state, so what HA shows is what the fireplace is told.
+    _attr_assumed_state = False
 
     def __init__(self, controller: ProflameController, key: str) -> None:
         self.controller = controller
