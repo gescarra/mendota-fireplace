@@ -110,7 +110,10 @@ async def test_thermostat(hass: HomeAssistant):
     hass.config.units = US_CUSTOMARY_SYSTEM
     calls = await _setup(hass)
     entry = hass.config_entries.async_entries(DOMAIN)[0]
-    assert hass.states.get("climate.fireplace_thermostat") is None  # no sensor yet
+    state = hass.states.get("climate.fireplace")
+    assert state.state == "off"
+    assert "preset_modes" not in state.attributes  # no sensor yet
+    assert state.attributes.get("temperature") is None
 
     hass.states.async_set(
         "sensor.room", "22.0", {"unit_of_measurement": "°C", "device_class": "temperature"}
@@ -128,7 +131,7 @@ async def test_thermostat(hass: HomeAssistant):
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
-    climate = "climate.fireplace_thermostat"
+    climate = "climate.fireplace"
     assert hass.states.get(climate).state == "off"
 
     async def call(service, **data):
@@ -188,6 +191,98 @@ async def test_sensor_chosen_at_setup(hass: HomeAssistant):
     )
     assert result["options"] == {"temperature_sensor": "sensor.room"}
     await hass.async_block_till_done()
-    state = hass.states.get("climate.fireplace_thermostat")
+    state = hass.states.get("climate.fireplace")
     assert state.state == "off"
-    assert state.attributes["preset_modes"] == ["none", "smart"]
+    assert state.attributes["preset_modes"] == ["manual", "thermostat", "smart"]
+
+
+async def _climate(hass: HomeAssistant, service: str, **data) -> None:
+    await hass.services.async_call(
+        "climate", service, {"entity_id": "climate.fireplace", **data}, blocking=True
+    )
+
+
+async def test_fireplace_entity_without_sensor(hass: HomeAssistant):
+    """The controls HomeKit's Heater Cooler shows, all on one entity."""
+    calls = await _setup(hass)
+    state = hass.states.get("climate.fireplace")
+    assert state.attributes["fan_modes"] == ["low", "middle", "medium", "high"]
+    assert state.attributes["swing_modes"] == ["off", "on"]
+
+    # On with no flame chosen yet: manual mode at a middle flame.
+    await _climate(hass, "set_hvac_mode", hvac_mode="heat")
+    got = (await _sent(hass, calls)).state
+    assert (got.power, got.thermostat, got.flame) == (True, False, 3)
+    state = hass.states.get("climate.fireplace")
+    assert (state.state, state.attributes["fan_mode"]) == ("heat", "middle")
+    assert hass.states.get("switch.fireplace_power").state == "on"
+
+    await _climate(hass, "set_fan_mode", fan_mode="high")
+    await _climate(hass, "set_swing_mode", swing_mode="on")
+    got = (await _sent(hass, calls)).state
+    assert (got.flame, got.front) == (6, True)
+    assert hass.states.get("switch.fireplace_secondary_burner").state == "on"
+    assert hass.states.get("climate.fireplace").attributes["swing_mode"] == "on"
+
+    # A flame between two modes shows as the nearer, ties going up.
+    await hass.services.async_call(
+        "number", "set_value", {"entity_id": "number.fireplace_flame", "value": 2},
+        blocking=True,
+    )
+    await _sent(hass, calls)
+    assert hass.states.get("climate.fireplace").attributes["fan_mode"] == "middle"
+
+    await _climate(hass, "turn_off")
+    got = (await _sent(hass, calls)).state
+    assert (got.power, got.flame) == (False, 2)
+    assert hass.states.get("climate.fireplace").state == "off"
+
+    await _climate(hass, "turn_on")
+    got = (await _sent(hass, calls)).state
+    assert (got.power, got.flame) == (True, 2)  # resumes, no default
+
+
+async def test_flame_and_temperature_pick_the_mode(hass: HomeAssistant):
+    """HomeKit cannot choose presets, so flame and temperature do."""
+    hass.config.units = US_CUSTOMARY_SYSTEM
+    hass.states.async_set("sensor.room", "70", {"unit_of_measurement": "°F"})
+    calls = async_mock_service(hass, "remote", "send_command")
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "name": "Fireplace",
+            "remote_entity": "remote.rm4_pro",
+            "capture": REAL_CAPTURE,
+            "temperature_sensor": "sensor.room",
+        },
+    )
+    await hass.async_block_till_done()
+
+    def preset():
+        return hass.states.get("climate.fireplace").attributes["preset_mode"]
+
+    await _climate(hass, "set_preset_mode", preset_mode="smart")
+    assert preset() == "smart"  # remembered while off
+    await _climate(hass, "set_hvac_mode", hvac_mode="heat")
+    got = (await _sent(hass, calls)).state
+    assert (got.thermostat, got.power) == (True, True)
+
+    # Choosing a flame takes manual control.
+    await _climate(hass, "set_fan_mode", fan_mode="low")
+    got = (await _sent(hass, calls)).state
+    assert (got.thermostat, got.power, got.flame) == (False, True, 1)
+    assert preset() == "manual"
+
+    # Setting a temperature goes back to the last thermostat preset.
+    await _climate(hass, "set_temperature", temperature=76)
+    got = (await _sent(hass, calls)).state
+    assert (got.thermostat, got.power, got.set_point) == (True, True, 76)
+    assert preset() == "smart"
+
+    # Back to manual by preset: the manual flame comes back.
+    await _climate(hass, "set_preset_mode", preset_mode="manual")
+    got = (await _sent(hass, calls)).state
+    assert (got.thermostat, got.power, got.flame) == (False, True, 1)

@@ -24,7 +24,8 @@ Do not automate it in ways you would not trust unattended.
 - Flame slider, 0 to 6
 - Fan, 6 speeds
 - Accent light, 6 levels
-- Thermostat (optional, see below)
+- Fireplace `climate` entity that gathers on/off, flame, secondary burner
+  and the optional thermostat in one place, for HomeKit (see below)
 
 ## Install
 
@@ -59,16 +60,56 @@ re-sends its state every 5 minutes (configurable, 0 disables).
 The fireplace has no thermostat of its own: the handheld remote measures the
 room and tells the fireplace what flame to burn. To get the same from Home
 Assistant, choose a room temperature sensor during setup or in the
-integration's options. A `climate` entity then appears.
+integration's options. The fireplace `climate` entity then gets a target
+temperature and three presets:
 
-- **Heat**: full flame until the room is past the target by the margin, then
-  off until it is under by the margin.
-- **Smart preset**: the flame follows how far the room is below target. This
-  is our own curve, not the handheld remote's. Three options shape it: the gap
-  at which the flame reaches 6 (default 6 °F, so one level per degree), the
+- **Manual**: burn the chosen flame level.
+- **Thermostat**: full flame until the room is past the target by the margin,
+  then off until it is under by the margin.
+- **Smart**: the flame follows how far the room is below target. This is our
+  own curve, not the handheld remote's. Three options shape it: the gap at
+  which the flame reaches 6 (default 6 °F, so one level per degree), the
   lowest flame level used, and the margin (default 0.5 °F).
+- Choosing a flame level on the fireplace entity switches to Manual. Setting
+  a temperature switches back to the last thermostat preset used. That is how
+  HomeKit, which cannot pick presets, moves between them.
 - If the sensor becomes unavailable while heating, the flame is turned off.
 - Turning on the manual power switch leaves thermostat mode.
+
+## HomeKit
+
+HomeKit Bridge gives every entity its own tile, so the controls that belong
+together are on one entity, `climate.fireplace`, shaped to fit HomeKit's
+Heater Cooler:
+
+| In the Home app | On the entity |
+|---|---|
+| On/off | heat / off |
+| Fan speed slider | flame, in 4 steps: 1, 3, 4, 6 (fan modes low, middle, medium, high) |
+| Swing | secondary burner |
+| Target and room temperature | only with a room sensor |
+
+The flame number entity keeps all six levels for Home Assistant. Expose the
+blower and the accent light alongside it; they stay separate tiles, so put
+them in the same room. HomeKit Bridge cannot show the flame number entity.
+
+```yaml
+homekit:
+  - name: Home Assistant
+    filter:
+      include_entities:
+        - climate.fireplace
+        - fan.fireplace_fan
+        - light.fireplace_accent_light
+    entity_config:
+      climate.fireplace:
+        type: heater_cooler
+```
+
+Home Assistant 2026.11 picks Heater Cooler for this entity on its own the
+first time it is exposed; `type` makes it explicit. An installation from
+before this change keeps the entity ID `climate.fireplace_thermostat`; rename
+it, or use that ID above.
 
 ## Dashboard
 
@@ -78,7 +119,7 @@ No custom card is needed. For example:
 type: vertical-stack
 cards:
   - type: thermostat
-    entity: climate.fireplace_thermostat
+    entity: climate.fireplace
   - type: tile
     entity: switch.fireplace_power
   - type: tile

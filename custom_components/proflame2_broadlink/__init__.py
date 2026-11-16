@@ -100,6 +100,13 @@ class ProflameController:
             except (TypeError, ValueError):
                 _LOGGER.warning("Ignoring unreadable stored state: %s", stored)
 
+    @property
+    def manual_flame(self) -> int:
+        """The flame level manual mode burns, even while a thermostat runs."""
+        if self.state.thermostat and self._manual_flame is not None:
+            return self._manual_flame
+        return self.state.flame
+
     @callback
     def async_add_listener(self, listener: Callable[[], None]) -> CALLBACK_TYPE:
         self._listeners.append(listener)

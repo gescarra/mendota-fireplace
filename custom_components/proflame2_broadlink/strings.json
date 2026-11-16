@@ -11,7 +11,7 @@
           "temperature_sensor": "Room temperature sensor (optional)"
         },
         "data_description": {
-          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and a thermostat entity is added."
+          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and the fireplace entity gains a thermostat."
         }
       }
     },
@@ -34,8 +34,8 @@
         },
         "data_description": {
           "resend_minutes": "The handheld remote repeats its state every few minutes. 0 turns this off.",
-          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and a thermostat entity is added.",
-          "smart_span": "How far below target the room must be for flame 6. The flame steps down evenly as the room warms; 6 \u00b0F means one level per degree.",
+          "temperature_sensor": "The fireplace has no sensor of its own; the handheld remote measures the room. Pick a sensor in the same room and the fireplace entity gains a thermostat.",
+          "smart_span": "How far below target the room must be for flame 6. The flame steps down evenly as the room warms; 6 °F means one level per degree.",
           "smart_min_flame": "Smart never burns lower than this while heating.",
           "hysteresis": "How far past a threshold the room must go before the flame changes or shuts off. Stops rapid cycling."
         }
@@ -71,11 +71,28 @@
     },
     "climate": {
       "thermostat": {
-        "name": "Thermostat",
         "state_attributes": {
           "preset_mode": {
             "state": {
+              "manual": "Manual",
+              "thermostat": "Thermostat",
               "smart": "Smart"
+            }
+          },
+          "fan_mode": {
+            "name": "Flame",
+            "state": {
+              "low": "1",
+              "middle": "3",
+              "medium": "4",
+              "high": "6"
+            }
+          },
+          "swing_mode": {
+            "name": "Secondary burner",
+            "state": {
+              "off": "Off",
+              "on": "On"
             }
           }
         }
