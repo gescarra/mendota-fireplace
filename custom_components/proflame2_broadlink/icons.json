@@ -1,0 +1,42 @@
+{
+  "entity": {
+    "switch": {
+      "power": {
+        "default": "mdi:fireplace",
+        "state": {
+          "off": "mdi:fireplace-off"
+        }
+      },
+      "pilot": {
+        "default": "mdi:fire-circle",
+        "state": {
+          "off": "mdi:fire-off"
+        }
+      },
+      "front": {
+        "default": "mdi:gas-burner"
+      }
+    },
+    "number": {
+      "flame": {
+        "default": "mdi:fire"
+      }
+    },
+    "fan": {
+      "fan": {
+        "default": "mdi:fan",
+        "state": {
+          "off": "mdi:fan-off"
+        }
+      }
+    },
+    "light": {
+      "light": {
+        "default": "mdi:led-strip-variant",
+        "state": {
+          "off": "mdi:led-strip-variant-off"
+        }
+      }
+    }
+  }
+}
