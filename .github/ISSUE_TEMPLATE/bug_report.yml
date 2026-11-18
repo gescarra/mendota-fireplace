@@ -1,0 +1,51 @@
+name: Bug report
+description: Something doesn't work the way the README says it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not paste learned codes, base64, captures or full packets.** They contain your remote's serial, which is all anyone needs to run your fireplace. Replace the first three bytes of any packet with `12 34 56`.
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.11.1"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Integration version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: fireplace
+    attributes:
+      label: Fireplace and remote
+      description: Make, model, and the transmitter model or FCC ID on the back of the handheld remote.
+      placeholder: "Mendota, GTMFSLA (FCC ID T99058404300)"
+    validations:
+      required: true
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: What you did, what the fireplace did, and what Home Assistant showed.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug logs
+      description: Set `custom_components.proflame2_broadlink` to debug. Remove the serial first.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed my remote's serial from everything above.
+          required: true
+        - label: The handheld remote's batteries were out, or I've ruled it out as the cause.

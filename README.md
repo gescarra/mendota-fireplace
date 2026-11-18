@@ -152,3 +152,12 @@ Thanks to [rtl_433](https://github.com/merbanan/rtl_433) and
     .venv/bin/python -m pytest tests
     .venv/bin/python tools/proflame.py decode <file | base64 | hex>
     .venv/bin/python tools/proflame.py listen --host <rm4-ip>
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report security problems privately, as
+described in [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT-0](LICENSE). Do what you like with it, no attribution required.
