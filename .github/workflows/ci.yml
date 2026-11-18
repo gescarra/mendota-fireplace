@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: uv venv --python 3.13 .venv
       - run: uv pip install --python .venv/bin/python -r requirements-test.txt broadlink
       - run: .venv/bin/python -m pytest tests
