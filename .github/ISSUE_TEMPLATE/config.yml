@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/gescarra/ha-proflame2-broadlink/security/advisories/new
+    about: Report privately, not in a public issue.
+  - name: General Home Assistant help
+    url: https://community.home-assistant.io/
+    about: Questions about Home Assistant itself, HomeKit Bridge or Broadlink setup.

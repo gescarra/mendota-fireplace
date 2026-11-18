@@ -1,0 +1,11 @@
+name: Feature request
+description: Something you'd like it to do.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: What you want
+      description: What you'd like, and what you're trying to get done with it.
+    validations:
+      required: true
